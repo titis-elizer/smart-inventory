@@ -1,0 +1,188 @@
+{
+"info": {
+"name": "Smart Inventory - Stock Out Flow",
+"_postman_id": "smart-inventory-001",
+"description": "Auto test flow stock out",
+"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+},
+"variable": [
+{
+"key": "base_url",
+"value": "http://localhost:9090"
+},
+{
+"key": "item_id",
+"value": ""
+},
+{
+"key": "stock_out_id",
+"value": ""
+}
+],
+"item": [
+{
+"name": "1. Create Stock Out",
+"request": {
+"method": "POST",
+"header": [
+{ "key": "Content-Type", "value": "application/json" }
+],
+"body": {
+"mode": "raw",
+"raw": "{\n  "items": [\n    {\n      "inventory_item_id": "{{item_id}}",\n      "qty": 2\n    }\n  ]\n}"
+},
+"url": {
+"raw": "{{base_url}}/stock-out",
+"host": ["{{base_url}}"],
+"path": ["stock-out"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"var jsonData = pm.response.json();",
+"pm.environment.set("stock_out_id", jsonData.id);",
+"pm.test("Create success", function () {",
+"    pm.response.to.have.status(200);",
+"});"
+]
+}
+}
+]
+},
+{
+"name": "2. Allocate",
+"request": {
+"method": "POST",
+"url": {
+"raw": "{{base_url}}/stock-out/{{stock_out_id}}/allocate",
+"host": ["{{base_url}}"],
+"path": ["stock-out", "{{stock_out_id}}", "allocate"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test("Allocated", function () {",
+"    pm.response.to.have.status(200);",
+"});"
+]
+}
+}
+]
+},
+{
+"name": "3. In Progress",
+"request": {
+"method": "POST",
+"url": {
+"raw": "{{base_url}}/stock-out/{{stock_out_id}}/in-progress",
+"host": ["{{base_url}}"],
+"path": ["stock-out", "{{stock_out_id}}", "in-progress"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test("In Progress", function () {",
+"    pm.response.to.have.status(200);",
+"});"
+]
+}
+}
+]
+},
+{
+"name": "4. Complete",
+"request": {
+"method": "POST",
+"url": {
+"raw": "{{base_url}}/stock-out/{{stock_out_id}}/complete",
+"host": ["{{base_url}}"],
+"path": ["stock-out", "{{stock_out_id}}", "complete"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test("Completed", function () {",
+"    pm.response.to.have.status(200);",
+"});"
+]
+}
+}
+]
+},
+{
+"name": "5. Cancel Scenario (NEW)",
+"request": {
+"method": "POST",
+"header": [
+{ "key": "Content-Type", "value": "application/json" }
+],
+"body": {
+"mode": "raw",
+"raw": "{\n  "items": [\n    {\n      "inventory_item_id": "{{item_id}}",\n      "qty": 1\n    }\n  ]\n}"
+},
+"url": {
+"raw": "{{base_url}}/stock-out",
+"host": ["{{base_url}}"],
+"path": ["stock-out"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"var jsonData = pm.response.json();",
+"pm.environment.set("cancel_id", jsonData.id);"
+]
+}
+}
+]
+},
+{
+"name": "6. Allocate Cancel",
+"request": {
+"method": "POST",
+"url": {
+"raw": "{{base_url}}/stock-out/{{cancel_id}}/allocate",
+"host": ["{{base_url}}"],
+"path": ["stock-out", "{{cancel_id}}", "allocate"]
+}
+}
+},
+{
+"name": "7. Cancel",
+"request": {
+"method": "POST",
+"url": {
+"raw": "{{base_url}}/stock-out/{{cancel_id}}/cancel",
+"host": ["{{base_url}}"],
+"path": ["stock-out", "{{cancel_id}}", "cancel"]
+}
+},
+"event": [
+{
+"listen": "test",
+"script": {
+"exec": [
+"pm.test("Canceled", function () {",
+"    pm.response.to.have.status(200);",
+"});"
+]
+}
+}
+]
+}
+]
+}
